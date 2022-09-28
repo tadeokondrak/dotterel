@@ -86,12 +86,16 @@ class KeyMapAdapter(context: Context, items: List<KeyMapping>, val readOnly: Boo
 							Toast.LENGTH_SHORT
 						)
 
-						it.setOnKeyListener({ _, keyCode, _ ->
-							it.clearFocus()
-							it.setOnKeyListener(null)
-							toast.cancel()
-							this.addMapping(position, keyCodeToString(keyCode))
-							true
+						it.setOnKeyListener({ _, keyCode, e ->
+							if (!(e.source and InputDevice.SOURCE_KEYBOARD == InputDevice.SOURCE_KEYBOARD)) {
+								false
+							}  else {
+								it.clearFocus()
+								it.setOnKeyListener(null)
+								toast.cancel()
+								this.addMapping(position, keyCodeToString(keyCode))
+								true
+							}
 						})
 
 						toast.show()

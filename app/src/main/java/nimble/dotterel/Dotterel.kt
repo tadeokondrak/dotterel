@@ -12,6 +12,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -33,7 +34,8 @@ import nimble.dotterel.translation.*
 val MACHINE_FACTORIES = mapOf<String, () -> StenoMachine.Factory>(
 	Pair("On Screen", { OnScreenStenoMachine.Factory() }),
 	Pair("NKRO", { NkroStenoMachine.Factory() }),
-	Pair("Serial", { SerialStenoMachine.Factory() })
+	Pair("Serial", { SerialStenoMachine.Factory() }),
+	Pair("Controller", { ControllerStenoMachine.Factory() })
 )
 
 fun combineNameId(name: String, id: String) =
@@ -84,6 +86,7 @@ class Dotterel : InputMethodService(), StenoMachine.Listener, StenoMachineTracke
 {
 	interface KeyListener
 	{
+		fun genericMotionEvent(e: MotionEvent): Boolean
 		fun keyDown(e: KeyEvent): Boolean
 		fun keyUp(e: KeyEvent): Boolean
 	}
@@ -349,6 +352,15 @@ class Dotterel : InputMethodService(), StenoMachine.Listener, StenoMachineTracke
 				Log.e("Dotterel", "Exception executing steno action: $e\n$stackTrace")
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show()
 			}
+	}
+
+	override fun onGenericMotionEvent(event: MotionEvent): Boolean
+	{
+		for(l in this.keyListeners)
+			if(l.genericMotionEvent(event))
+				return true
+
+		return super.onGenericMotionEvent(event)
 	}
 
 	override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean

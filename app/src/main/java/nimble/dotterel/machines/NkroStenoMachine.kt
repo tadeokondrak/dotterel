@@ -3,7 +3,9 @@
 
 package nimble.dotterel.machines
 
+import android.view.InputDevice
 import android.view.KeyEvent
+import android.view.MotionEvent
 
 import com.eclipsesource.json.JsonObject
 
@@ -71,8 +73,16 @@ class NkroStenoMachine(private val app: Dotterel) :
 		}
 	}
 
+	override fun genericMotionEvent(e: MotionEvent): Boolean
+	{
+		return false
+	}
+
 	override fun keyDown(e: KeyEvent): Boolean
 	{
+		if(!(e.source and InputDevice.SOURCE_KEYBOARD == InputDevice.SOURCE_KEYBOARD))
+			return false
+
 		return if(this.keyMap.isMapped(e.keyCode))
 		{
 			this.keysDown.add(e.keyCode)
